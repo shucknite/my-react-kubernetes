@@ -1,0 +1,49 @@
+# https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: client-deployment
+  namespace: default
+  labels:
+    component: client-de
+spec:
+  selector:
+    matchLabels:
+      component: client-de
+  replicas: 1
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        component: client-de
+    spec:
+      # initContainers:
+        # Init containers are exactly like regular containers, except:
+          # - Init containers always run to completion.
+          # - Each init container must complete successfully before the next one starts.
+      containers:
+      - name: client-de
+        image: stylerhun/multi-client  
+        imagePullPolicy: IfNotPresent
+--- 
+# https://kubernetes.io/docs/concepts/services-networking/service/
+apiVersion: v1
+kind: Service
+metadata:
+  name: client-cluster-ip-service
+  namespace: default
+spec:
+  selector:
+    component: client-cluster-ip-service
+  type: ClusterIP
+  ports:
+  - name: client-cluster-ip-service
+    protocol: TCP
+    port: 3000
+    targetPort: 3000
+
+
